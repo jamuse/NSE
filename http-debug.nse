@@ -13,6 +13,10 @@ The DEBUG verb is used within ASP.NET applications to start/stop remote debuggin
 -- | http-debug: DEBUG method is enabled
 --
 -- @args http-debug.path Path to URI
+--
+-
+-- @xmloutput
+-- <elem key="status">DEBUG is enabled</elem>
 
 
 author = "Josh Amishav-Zlatin"
@@ -27,7 +31,7 @@ local http = require "http"
 portrule = shortport.http
 
 local function generate_http_debug_req(host, port, path)
-  local status = "disabled"
+  local status = false 
   local options = {header={}}
   options["header"]["Command"] = "stop-debug"
 
@@ -39,17 +43,17 @@ local function generate_http_debug_req(host, port, path)
 
   stdnse.debug1("Response body: %s", req.body )
   if req.body:match("OK") then
-    status = "enabled"
+    status = true
   end
   return status
 end
 
 action = function(host, port)
-  local path = stdnse.get_script_args("http-debug.path") or "/"
+  local output = stdnse.output_table()
+  local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
   status = generate_http_debug_req(host, port, path)
-  if status == "enabled" then
-    local response = "DEBUG method is enabled"
-    return response
+  if status then
+    output.status = "DEBUG is enabled"
+    return output
   end
 end
-
