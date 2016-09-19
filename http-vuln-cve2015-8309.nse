@@ -56,7 +56,7 @@ Cherry Music version 0.35.1 suffers from an arbitrary file disclosure vulnerabil
 
 author = "Josh Amishav-Zlatin"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = { "vuln", "discovery", "safe" } 
+categories = { "vuln", "safe" } 
 
 portrule = shortport.http
 
