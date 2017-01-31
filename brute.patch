@@ -1,0 +1,113 @@
+750c750
+<         stdnse.debug2("%s %s against %s:%d", msg, c, self.host.ip, self.port.number)
+---
+>         stdnse.debug("%s %s against %s:%d", msg, c, self.host.ip, self.port.number)
+986a987
+>     local mangling_rules = stdnse.get_script_args("brute.mangling-rule") or "all"
+1022a1024,1025
+>     elseif( mode and mode == 'pass-mangling' ) then
+>       self.iterator = self.iterator or Iterators.pw_mangling_iterator( usernames, passwords, mangling_rules )
+1381a1385,1487
+>   end,
+> 
+>   pw_mangling_iterator = function( users, passwords, rule)
+>     local function next_credential ()
+>       for user, pass in Iterators.account_iterator(users, passwords, "pass") do
+>         if rule == 'digits' or rule == 'all' then
+>           -- Current year, next year, 17 years back...
+>           local year = tonumber(os.date("%Y"))
+>           coroutine.yield( user, pass..year )
+>           coroutine.yield( user, pass..year+1 )
+>           for i = year, year-17, -1 do
+>             coroutine.yield( user, pass..i )
+>           end
+> 
+>           -- Digits from 0 to 9
+>           for i = 0, 9 do
+>             coroutine.yield( user, pass..i )
+>           end 
+>           -- Digits from 00 to 99
+>           for i = 0, 9 do
+>             for x = 0, 9 do
+>               coroutine.yield( user, pass..i..x )
+>             end
+>           end
+> 
+>           -- Common digit combos
+>           coroutine.yield( user, pass.."123" )
+>           coroutine.yield( user, pass.."1234" )
+>           coroutine.yield( user, pass.."12345" )
+>         end
+>         if rule == 'strings' or rule == 'all' then
+>           -- Basic string stuff like uppercase, 
+>           -- reverse, camelization and repetition
+>           local leet_patterns = {["a"]="4",["e"]="3",["i"]="1",["l"]=1,["o"]="0",["t"]="7",["s"]=5,}
+>           for k,v in pairs(leet_patterns) do 
+>             coroutine.yield( user, pass:gsub(k,v) )
+>           end
+>           local leetified_pass = pass:gsub("a", 4) 
+>           local leetified_pass = leetified_pass:gsub("a", 4) 
+>           local leetified_pass = leetified_pass:gsub("e", 3) 
+>           local leetified_pass = leetified_pass:gsub("i", 1) 
+>           local leetified_pass = leetified_pass:gsub("l", 1) 
+>           local leetified_pass = leetified_pass:gsub("o", 0) 
+>           local leetified_pass = leetified_pass:gsub("t", 7) 
+>           local leetified_pass = leetified_pass:gsub("s", 5) 
+>           coroutine.yield( user, leetified_pass )
+>           coroutine.yield( user, pass:upper() )
+>           coroutine.yield( user, leetified_pass:upper() )
+>           coroutine.yield( user, pass:lower() )
+>           coroutine.yield( user, pass:reverse() )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) )
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() )
+>           coroutine.yield( user, leetified_pass:sub(1,1):upper()..leetified_pass:sub(2) )
+>           coroutine.yield( user, leetified_pass:sub(1,-2)..leetified_pass:sub(-1):upper() )
+>           coroutine.yield( user, pass:rep(2) )
+>           coroutine.yield( user, pass:rep(3) )
+>         end
+>         if rule == 'special' or rule == 'all' then
+>           -- Common special characters like $,#,!
+>           coroutine.yield( user, pass..'$' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'$' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'$' ) 
+>           coroutine.yield( user, pass..'~' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'~' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'~' ) 
+>           coroutine.yield( user, pass..'#' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'#' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'#' ) 
+>           coroutine.yield( user, pass..'*' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'*' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'*' ) 
+>           coroutine.yield( user, pass..'!' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'!' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'!' ) 
+>           coroutine.yield( user, pass..'.' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'.' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'.' ) 
+>           coroutine.yield( user, pass..'@' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'@' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'@' ) 
+>           coroutine.yield( user, pass..'%' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'%' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'%' ) 
+>           coroutine.yield( user, pass..'1!' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'1!' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'1!' ) 
+>           coroutine.yield( user, pass..'2@' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'2@' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'2@' ) 
+>           coroutine.yield( user, pass..'3#' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'3#' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'3#' ) 
+>           coroutine.yield( user, pass..'4$' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'4$' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'4$' ) 
+>           coroutine.yield( user, pass..'5%' )
+>           coroutine.yield( user, pass:sub(1,1):upper()..pass:sub(2) ..'5%' ) 
+>           coroutine.yield( user, pass:sub(1,-2)..pass:sub(-1):upper() ..'5%' ) 
+>         end
+>       end
+>       while true do coroutine.yield(nil, nil) end
+>     end
+>     return coroutine.wrap( next_credential )
